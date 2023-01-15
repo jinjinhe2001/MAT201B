@@ -1,0 +1,3 @@
+[submodule "allolib_playground"]
+	path = allolib_playground
+	url = https://github.com/AlloSphere-Research-Group/allolib_playground.git
