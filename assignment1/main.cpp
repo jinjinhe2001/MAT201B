@@ -5,18 +5,73 @@
 using namespace al;
 using namespace std;
 
+static bool simulationMap[2405][1605];
+
+// for simulation
+typedef struct particle
+{
+  int id;
+  int x, y;
+  Vec2d velocity;
+  Color color;
+  bool hasUpdate;
+  bool isWater;
+} particle;
+
+
 struct AnApp : App {
   Mesh original, current, cube, cylinder;
   // hint: add more meshes here: cube, cylindar, custom
   Mesh cubeAxis, cylinderAxis;
   Mesh target, pre;
+  vector<particle> particles;
 
+  bool simulating;
   bool animating;
   const float animationTime = 1.0f; // whole animation time
   float steptime;
   int axisShowing = 0;
+  Vec3d mean;  // note: we will learn average pixel position
+
+  const int boundHX = 2200;
+  const int boundHY = 1400;
+  const int boundLX = -200;
+  const int boundLY = -200;
+
+  int imageWidth;
+  int imageHeight;
 
   Vec3d navTarget;
+
+  Vec2i position2Simulation(float x, float y, bool hasMean = true) {
+    int sX;
+    int sY;
+    if (hasMean) {
+      sX = (x + mean.x) * imageWidth;
+      sY = (y + mean.y) * imageHeight;
+    } else {
+      sX = (x) * imageWidth;
+      sY = (y) * imageHeight;
+    }
+    
+    if (sX > boundHX) {
+      sX = boundHX;
+    } else if(sX < boundLX) {
+      sX = boundLX;
+    }
+    if (sY > boundHY) {
+      sY = boundHY;
+    } else if (sY < boundLY) {
+      sY = boundLY;
+    }
+    return Vec2i(round(sX), round(sY));
+  }
+
+  Vec2d position2Screen(int x, int y) {
+    double sX = (double)x / imageWidth - mean.x;
+    double sY = (double)y / imageHeight - mean.y;
+    return Vec2d(sX, sY);
+  }
 
   void createCylinderAxis() {
     cylinderAxis.primitive(Mesh::LINES);
@@ -75,6 +130,7 @@ struct AnApp : App {
     //   /Users/foo/allolib_playground/code-folder
     // so we add the "../" to our image file name
     animating = false;
+    simulating = false;
     const std::string filename = File::currentPath() + "../mpv-shot0005.jpg";
     cout << "loading: " << filename << endl;
     auto image = Image(filename);
@@ -83,10 +139,11 @@ struct AnApp : App {
       exit(1);
     }
     cout << "image size: " << image.width() << "x" << image.height() << endl;
-
-    Vec3d mean;  // note: we will learn average pixel position
+    imageWidth = image.width();
+    imageHeight = image.height();
 
     // get the RGB of each pixel in the image
+    int index = 0;
     for (int column = 0; column < image.width(); ++column) {
       for (int row = 0; row < image.height(); ++row) {
         // here's how to look up a pixel in an image
@@ -121,6 +178,22 @@ struct AnApp : App {
         current.vertex(position);
         current.color(color);
 
+        particle p;
+        p.id = index;
+        p.color = color;
+        p.velocity = 1.0f;
+        p.hasUpdate = false;
+        auto simPos = position2Simulation(position.x, position.y, false);
+        p.x = simPos.x;
+        p.y = simPos.y;
+        simulationMap[simPos.x - boundLX][simPos.y - boundLY] = true;
+        if (cos(2 * M_PI * hsvColor.h) < 0) {
+          p.isWater = true;
+        } else {
+          p.isWater = false;
+        }
+        particles.push_back(p);
+        index++;
         // hint: configure more meshes here
       }
     }
@@ -130,7 +203,6 @@ struct AnApp : App {
     mean /= original.vertices().size();
     for (auto& v : original.vertices()) v -= mean;
     for (auto& v : current.vertices()) v -= mean;
-
     // configure the meshs to render as points
     original.primitive(Mesh::POINTS);
     current.primitive(Mesh::POINTS);
@@ -166,6 +238,45 @@ struct AnApp : App {
         current.vertices().at(i).set(position);
       }
       nav().pos().lerp(navTarget, steptime / animationTime);
+    } else if (simulating) {
+      for (int i = 0; i < current.vertices().size(); i++) {
+        if (particles[i].isWater) {
+          Vec3f position = current.vertices().at(i);
+          Vec2i sPos(particles[i].x, particles[i].y);
+          Vec2i newPos = sPos;
+          bool update = false;
+          float rand = (float)random()/RAND_MAX;
+          if (sPos.y > boundLY) {
+            for (int i = -1; i <= 1; i++) {
+              if (sPos.x + i >= boundLX && sPos.x + i <= boundHX && rand > (i + 1) * 0.33f) {
+                if (!simulationMap[sPos.x - boundLX + i][sPos.y - boundLY - 1]) {
+                  newPos = Vec2i(sPos.x + i, sPos.y - 1);
+                  update = true;
+                }
+              }
+            }
+          }
+          if (!update) {
+            for (int i = -1; i <= 1; i+=2) {
+              if (sPos.x + i >= boundLX && sPos.x + i <= boundHX) {
+                if (!simulationMap[sPos.x - boundLX + i][sPos.y - boundLY]) {
+                  newPos = Vec2i(sPos.x + i, sPos.y);
+                }
+              }
+            }
+          }
+          simulationMap[sPos.x - boundLX][sPos.y - boundLY] = false;
+          simulationMap[newPos.x - boundLX][newPos.y - boundLY] = true;
+          particles[i].x = newPos.x;
+          particles[i].y = newPos.y;
+          /*if (sPos.x != newPos.x || sPos.y != newPos.y){
+            std::cout<<sPos << newPos <<endl;
+          }*/
+          auto temp = position2Screen(newPos.x, newPos.y);
+          Vec3d newPosition = Vec3d(temp.x, temp.y, position.z);
+          current.vertices().at(i).set(newPosition);
+        }
+      }
     }
     // animate changes to the CURRENT mesh using linear interpolation
     nav().faceToward(Vec3d(0, 0, 0));
@@ -180,6 +291,7 @@ struct AnApp : App {
         target = original;
         steptime = 0.0f;
         axisShowing = 0;
+        simulating = false;
       } break;
       case '2': {
         // note: trigger transition toward an RGB cube
@@ -189,6 +301,7 @@ struct AnApp : App {
         target = cube;
         steptime = 0.0f;
         axisShowing = 1;
+        simulating = false;
       } break;
       case '3': {
         // note: trigger transition toward an HSV cylinder
@@ -198,9 +311,17 @@ struct AnApp : App {
         target = cylinder;
         steptime = 0.0f;
         axisShowing = 2;
+        simulating = false;
       } break;
       case '4': {
         // note: trigger transition to your custom arrangement
+        navTarget = Vec3d(0, 0, 2.0f);
+        animating = true;
+        pre = current;
+        target = original;
+        steptime = 0.0f;
+        axisShowing = 0;
+        simulating = true;
       } break;
     }
     return true;
