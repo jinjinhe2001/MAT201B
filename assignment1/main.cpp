@@ -7,7 +7,6 @@ using namespace std;
 
 static bool simulationMap[2405][1605];
 
-// for simulation
 typedef struct particle
 {
   int id;
@@ -228,13 +227,21 @@ struct AnApp : App {
         steptime = animationTime;
         for (int i = 0; i < current.vertices().size(); i++) {
           Vec3d position = target.vertices().at(i);
+          if (simulating) {
+            position = Vec3d(position2Screen(particles[i].x, particles[i].y), position.z);
+          }
           current.vertices().at(i).set(position);
           animating = false;
         }
         return;
       }
       for (int i = 0; i < current.vertices().size(); i++) {
-        Vec3d position = lerp(pre.vertices().at(i), target.vertices().at(i), steptime / animationTime); 
+        Vec3d position; 
+        if (simulating) {
+          position = lerp(pre.vertices().at(i), al::Mesh::Vertex(position2Screen(particles[i].x, particles[i].y), position.z), steptime / animationTime);
+        } else {
+          position = lerp(pre.vertices().at(i), target.vertices().at(i), steptime / animationTime);
+        }
         current.vertices().at(i).set(position);
       }
       nav().pos().lerp(navTarget, steptime / animationTime);
@@ -315,7 +322,7 @@ struct AnApp : App {
       } break;
       case '4': {
         // note: trigger transition to your custom arrangement
-        navTarget = Vec3d(0, 0, 2.0f);
+        navTarget = Vec3d(0, 0, 4.0f);
         animating = true;
         pre = current;
         target = original;

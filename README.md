@@ -8,7 +8,7 @@ In Assignment 1, this program allow the user to organize the mesh vertices using
 - `1` key returns the points to the row/column positions of each pixel in the original image.
 - `2` key places each point in an **RGB color space** "Cube" according to its color.
 - `3` key builds an **HSV color space** "Cylinder" with the points.
-- `4` key organizes the points according to my own aesthetic goals; I implemented a mesh-based sand simulation!  
+- `4` key organizes the points according to my aesthetic goals; I implemented a **grid-based sand simulation**!  
 
 
 https://user-images.githubusercontent.com/72654824/212613269-d50daa3a-6753-4c8d-ac52-f4925f323c8b.mp4
