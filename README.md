@@ -2,6 +2,7 @@
 Hi, this is Jinjin He.  
 This repository is to share my work on the UCSB MAT201B course.
 ## How to run  
+``git clone --recursive https://github.com/jinjinhe2001/MAT201B.git``  
 Move code folders to allolib_playground modules. And run ``./run.sh xxx(code direction in allolib_playground)``
 ## Assignment 1
 In Assignment 1, this program allow the user to organize the mesh vertices using keyboard interaction:
