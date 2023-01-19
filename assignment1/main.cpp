@@ -1,3 +1,9 @@
+// Karl Yerkes
+// 2023-01-13
+// MAT 201B
+// Starter Code for Alssignment 1
+// Jinjin He
+
 #include "al/app/al_App.hpp"
 #include "al/graphics/al_Image.hpp"
 #include "al/io/al_File.hpp"
