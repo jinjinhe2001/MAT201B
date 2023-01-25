@@ -17,3 +17,5 @@ https://user-images.githubusercontent.com/72654824/212613269-d50daa3a-6753-4c8d-
 
 https://user-images.githubusercontent.com/72654824/212613271-75de9dac-41a8-4051-be9e-16a968659f5f.mp4
 
+## Assignment 2
+In Assignment 2, I implemented a 'solar-like system that followed physics rules.
