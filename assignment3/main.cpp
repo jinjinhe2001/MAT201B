@@ -73,7 +73,7 @@ struct MyApp : public App
     BufferObject rotateBuffer[4];
     BufferObject colorBuffer;
     ParameterVec3 boxBound{"box", "", Vec3f(6.0f)};
-    Parameter sight{"sight", 0.8, 0.1, 3.0};
+    Parameter sight{"sight", 1.0, 0.1, 3.0};
     Parameter speedLimit{"speedLimit", 1.0, 0.1, 5.0};
     Parameter targetRadius{"targetRadius", 3.0f, 0.0f, 6.0f};
     Parameter foodAppeal{"foodAppeal", 1.0f, 0.0f, 3.0f};
