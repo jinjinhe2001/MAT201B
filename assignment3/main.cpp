@@ -53,6 +53,7 @@ public:
     Vec3f position;
     Vec3f faceTo;
     Vec3f velocity;
+    Vec3f lastVelocity;
     Vec3f accelerate;
     Vec3f sightPos;
     int sightWeight;
@@ -73,10 +74,11 @@ struct MyApp : public App
     BufferObject colorBuffer;
     ParameterVec3 boxBound{"box", "", Vec3f(6.0f)};
     Parameter sight{"sight", 0.8, 0.1, 3.0};
-    Parameter speedLimit{"speedLimit", 1.0, 0.1, 2.0};
-    Parameter targetRadius{"targetRadius", 3.0f, 0.5f, 6.0f};
-    Parameter foodAppeal{"foodAppeal", 1.0f, 0.1f, 3.0f};
-    Parameter foodspeed{"foodspeed", 0.7f, 0.1f, 5.0f};
+    Parameter speedLimit{"speedLimit", 1.0, 0.1, 5.0};
+    Parameter targetRadius{"targetRadius", 3.0f, 0.0f, 6.0f};
+    Parameter foodAppeal{"foodAppeal", 1.0f, 0.0f, 3.0f};
+    Parameter foodspeed{"foodspeed", 0.7f, 0.0f, 5.0f};
+    Parameter pushStrength{"pushStrength", 1.0f, 0.1f, 5.0f};
     Vec3f targetPos;
     float targetTheta;
 
@@ -170,12 +172,14 @@ struct MyApp : public App
         gui.add(targetRadius);
         gui.add(foodAppeal);
         gui.add(foodspeed);
+        gui.add(pushStrength);
     }
 
     void onCreate()
     {
         for (int i = 0; i < instanceNum; i++) {
             Boid newBoid;
+            newBoid.position = Vec3f(0, 0, 0);
             boids.push_back(newBoid);
         }
         createBird();
@@ -194,8 +198,9 @@ struct MyApp : public App
     {
         for (auto &b : boids)
         {
-            b.position = rnd::ball<Vec3f>();
-            b.velocity = rnd::ball<Vec3f>();
+            b.position = rnd::ball<Vec3f>() * 5;
+            b.velocity = rnd::ball<Vec3f>() * 5;
+            b.lastVelocity = b.velocity;
         }
     }
 
@@ -218,16 +223,15 @@ struct MyApp : public App
                 auto dist = ds.mag();
 
                 // Collision avoidance
-                float pushRadius = 0.05;
-                float pushStrength = 1;
-                float push = exp(-al::pow2(dist / pushRadius)) * pushStrength;
+                float pushRadius = 0.1;
+                float push = exp(-al::pow2(dist / pushRadius)) * pushStrength.get();
 
                 auto pushVector = ds.normalized() * push;
                 boids[i].velocity += pushVector;
                 boids[j].velocity -= pushVector;
 
                 // Velocity matching
-                float matchRadius = 0.125;
+                float matchRadius = 0.4;
                 float nearness = exp(-al::pow2(dist / matchRadius));
                 Vec3f veli = boids[i].velocity;
                 Vec3f velj = boids[j].velocity;
@@ -362,7 +366,7 @@ struct MyApp : public App
     
     void addFood() 
     {
-
+        
     }
 };
 
