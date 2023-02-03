@@ -59,7 +59,7 @@ public:
     int sightWeight;
 
     // Update position based on velocity and delta time
-    void update(float dt) { position += velocity * dt; }
+    void update(float dt) { position += velocity * dt; faceTo.lerp(velocity, 0.01); }
 };
 
 struct MyApp : public App
@@ -201,6 +201,7 @@ struct MyApp : public App
             b.position = rnd::ball<Vec3f>() * 5;
             b.velocity = rnd::ball<Vec3f>() * 5;
             b.lastVelocity = b.velocity;
+            b.faceTo = b.velocity;
         }
     }
 
@@ -296,7 +297,7 @@ struct MyApp : public App
             b.update(dt);
             b.velocity -= centerV * rate;
             positions.push_back(b.position);
-            auto q = Quatf::rotor(Vec3f(0.0f, 0.0f, 1.0f), b.velocity.normalized());
+            auto q = Quatf::rotor(Vec3f(0.0f, 0.0f, 1.0f), b.faceTo.normalized());
             Matrix4f rotateM;
             q.toMatrix(rotateM.elems());
             for (int i = 0; i < 4; i++) {
