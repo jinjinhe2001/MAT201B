@@ -29,6 +29,9 @@ Double Star
 https://user-images.githubusercontent.com/72654824/214513686-5abb23c7-c063-40ac-8536-b01d09e58033.mp4
 
 ## Assignment3
-I created a 3D autonomous agent simulation with flocking
+I created a 3D autonomous agent simulation with flocking. This system has some adjustable parameters and food attractors.
+
+https://user-images.githubusercontent.com/72654824/216526465-cb2ca956-4ab0-403f-ada4-5a6627e535f8.mp4
+
 
 
