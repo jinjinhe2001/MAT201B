@@ -18,7 +18,7 @@ https://user-images.githubusercontent.com/72654824/212613269-d50daa3a-6753-4c8d-
 https://user-images.githubusercontent.com/72654824/212613271-75de9dac-41a8-4051-be9e-16a968659f5f.mp4
 
 ## Assignment 2
-In Assignment 2, I implemented a 'solar-like system that followed physics rules.  
+In Assignment 2, I implemented a solar-like system that followed physics rules.  
 
 Single Star   
 
@@ -27,3 +27,8 @@ https://user-images.githubusercontent.com/72654824/214513632-7bc50f95-7dee-4065-
 Double Star   
 
 https://user-images.githubusercontent.com/72654824/214513686-5abb23c7-c063-40ac-8536-b01d09e58033.mp4
+
+## Assignment3
+I created a 3D autonomous agent simulation with flocking
+
+
