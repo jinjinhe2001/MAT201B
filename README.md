@@ -1,5 +1,4 @@
-# MAT 201B
-Hi, this is Jinjin He.  
+# MAT 201B  
 This repository is to share my work on the UCSB MAT201B course.
 ## How to run  
 ``git clone --recursive https://github.com/jinjinhe2001/MAT201B.git``  
